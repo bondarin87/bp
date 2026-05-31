@@ -41,6 +41,64 @@ body.has-pointer .inspection-light {
   z-index: 9000;
 }
 
+.scroll-progress::before {
+  content: "";
+  position: absolute;
+  right: -5px;
+  top: -3px;
+  width: 9px;
+  height: 9px;
+  background: #cfa44a;
+  clip-path: polygon(0 45%, 100% 0, 70% 100%);
+  filter: drop-shadow(0 0 8px rgba(207,164,74,0.95));
+  transform-origin: center;
+  transform: rotate(-8deg);
+}
+
+.scroll-progress::after {
+  content: "";
+  position: absolute;
+  right: -18px;
+  top: -9px;
+  width: 28px;
+  height: 20px;
+  background:
+    radial-gradient(circle, rgba(207,164,74,0.9) 0 1px, transparent 2px) 4px 4px / 9px 8px,
+    radial-gradient(circle, rgba(255,255,255,0.75) 0 1px, transparent 2px) 14px 8px / 11px 9px;
+  filter: blur(0.2px);
+  opacity: 0;
+}
+
+.scroll-progress.cutting::before {
+  animation: cutter-tip 0.18s infinite steps(2);
+}
+
+.scroll-progress.cutting::after {
+  animation: cutter-sparks 0.55s linear infinite;
+}
+
+@keyframes cutter-tip {
+  0% {
+    transform: translate(0, 0) rotate(-8deg);
+  }
+
+  100% {
+    transform: translate(1px, -1px) rotate(8deg);
+  }
+}
+
+@keyframes cutter-sparks {
+  0% {
+    transform: translateX(0) scale(0.9);
+    opacity: 0.95;
+  }
+
+  100% {
+    transform: translateX(12px) scale(0.55);
+    opacity: 0;
+  }
+}
+
 .page-loader {
   position: fixed;
   inset: 0;
@@ -248,17 +306,7 @@ body.loaded .hero-content h1 {
   opacity: 0.85;
 }
 
-.hero-tech-line {
-  min-height: 22px;
-  margin-top: 12px;
-  color: #cfa44a;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.hero-tech-line span::after {
+.hero-text span::after {
   content: "";
   display: inline-block;
   width: 1px;
