@@ -1,87 +1,109 @@
-// JS mínimo por ahora (estructura lista para crecer)
 console.log("BREAKPOINT listo.");
 
-// ===== BREAKPOINT CALCULADORA =====
-(() => {
+const dustCanvas = document.getElementById("dustLayer");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const openBtn = document.getElementById("bpOpenCalc");
-  const closeBtn = document.getElementById("bpCloseCalc");
-  const overlay = document.getElementById("bpCalcOverlay");
+if (dustCanvas && !reduceMotion) {
+  const ctx = dustCanvas.getContext("2d");
+  const dust = [];
+  let width = 0;
+  let height = 0;
+  let lastScrollY = window.scrollY;
+  let airLift = 0;
 
-  if (!openBtn || !overlay) return;
+  function resizeDust() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
 
-  // ABRIR CALCULADORA
-  openBtn.addEventListener("click", () => {
-    overlay.classList.add("active");
-    document.body.classList.add("bp-no-scroll");
-  });
-
-  // CERRAR CON BOTÓN ✕
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      overlay.classList.remove("active");
-      document.body.classList.remove("bp-no-scroll");
-    });
+    dustCanvas.width = width * ratio;
+    dustCanvas.height = height * ratio;
+    dustCanvas.style.width = `${width}px`;
+    dustCanvas.style.height = `${height}px`;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 
-  // CERRAR AL HACER CLICK FUERA
-  overlay.addEventListener("click", e => {
-    if (e.target === overlay) {
-      overlay.classList.remove("active");
-      document.body.classList.remove("bp-no-scroll");
+  function createParticle() {
+    const depth = Math.random();
+    const direction = Math.random() * Math.PI * 2;
+    const speed = 0.035 + depth * 0.09 + Math.random() * 0.035;
+
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: Math.cos(direction) * speed + 0.035,
+      vy: Math.sin(direction) * speed - 0.018,
+      baseVx: Math.cos(direction) * speed + 0.035,
+      baseVy: Math.sin(direction) * speed - 0.018,
+      size: 0.45 + Math.random() * 1.25 + depth * 0.8,
+      alpha: 0.13 + Math.random() * 0.22 + depth * 0.1,
+      phase: Math.random() * Math.PI * 2,
+      wobble: 0.0007 + Math.random() * 0.0018,
+      depth
+    };
+  }
+
+  function resetDust() {
+    dust.length = 0;
+    const count = Math.min(120, Math.max(65, Math.floor((width * height) / 15000)));
+
+    for (let i = 0; i < count; i++) {
+      dust.push(createParticle());
     }
-  });
-
-  const precios = {
-    pared: 50,
-    piso: 40,
-    demol: 2300,
-    regatas: 45,
-    saco: 8
-  };
-
-  const inputs = [
-    "bpPared",
-    "bpPiso",
-    "bpDemolicion",
-    "bpRegatas"
-  ];
-
-  inputs.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener("input", calcular);
-  });
-
-  function calcular() {
-    const pared = +document.getElementById("bpPared").value || 0;
-    const piso = +document.getElementById("bpPiso").value || 0;
-    const demol = +document.getElementById("bpDemolicion").value || 0;
-    const regatas = +document.getElementById("bpRegatas").value || 0;
-
-    // PRECIOS
-    const precioServicios =
-      pared * 50 +
-      piso * 40 +
-      demol * 2300 +
-      regatas * 45;
-
-    // SACOS (REGLAS REALES)
-    const sacosPared = pared * 2;
-    const sacosPiso = piso * 2;
-    const sacosDemol = demol * 50;
-    const sacosRegatas = Math.ceil(regatas / 7);
-
-    const totalSacos =
-      sacosPared +
-      sacosPiso +
-      sacosDemol +
-      sacosRegatas;
-
-    const costoDesmonte = totalSacos * 8;
-    const total = precioServicios + costoDesmonte;
-
-    document.getElementById("bpSacos").textContent = totalSacos;
-    document.getElementById("bpTotal").textContent = `S/ ${total.toFixed(0)}`;
   }
 
-})();
+  function wrapParticle(particle) {
+    const margin = 80;
+
+    if (particle.x < -margin) particle.x = width + margin;
+    if (particle.x > width + margin) particle.x = -margin;
+    if (particle.y < -margin) particle.y = height + margin;
+    if (particle.y > height + margin) particle.y = -margin;
+  }
+
+  function drawDust(time) {
+    ctx.clearRect(0, 0, width, height);
+
+    const scrollDelta = window.scrollY - lastScrollY;
+    lastScrollY = window.scrollY;
+    airLift += scrollDelta * 0.018;
+    airLift *= 0.92;
+
+    for (const particle of dust) {
+      const slowTime = time * particle.wobble;
+      const driftX = Math.sin(slowTime + particle.phase) * (0.12 + particle.depth * 0.22);
+      const driftY = Math.cos(slowTime * 0.7 + particle.phase) * (0.08 + particle.depth * 0.16);
+
+      particle.vx += (particle.baseVx - particle.vx) * 0.006;
+      particle.vy += (particle.baseVy - particle.vy) * 0.006;
+      particle.vx += (Math.random() - 0.5) * 0.0012;
+      particle.vy += (Math.random() - 0.5) * 0.001;
+
+      particle.x += particle.vx + driftX;
+      particle.y += particle.vy + driftY - airLift * particle.depth;
+
+      wrapParticle(particle);
+
+      const shimmer = 0.72 + Math.sin(slowTime * 1.7 + particle.phase) * 0.28;
+      const alpha = particle.alpha * shimmer;
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(218, 190, 128, ${alpha})`;
+      ctx.shadowColor = "rgba(218, 190, 128, 0.22)";
+      ctx.shadowBlur = 5 + particle.depth * 7;
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    requestAnimationFrame(drawDust);
+  }
+
+  resizeDust();
+  resetDust();
+  requestAnimationFrame(drawDust);
+
+  window.addEventListener("resize", () => {
+    resizeDust();
+    resetDust();
+  });
+}
