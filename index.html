@@ -8,21 +8,35 @@
   <meta name="description" content="BREAKPOINT - Preparacion interior tecnica, retiro de revestimientos, cocinas de concreto y puesta a punto de inmuebles para tecnologia y automatizacion en Lima.">
 
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Cinzel+Decorative:wght@700;900&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+  <div class="inspection-light" id="inspectionLight" aria-hidden="true"></div>
+
+  <div class="page-loader" id="pageLoader" aria-hidden="true">
+    <div class="loader-mark">
+      <span class="loader-cut"></span>
+      <p>BREAKPOINT</p>
+      <small>Interior Hard Reset</small>
+      <span class="loader-bar"></span>
+    </div>
+  </div>
+
   <div class="bg-fixed"></div>
+  <div class="tech-lines" aria-hidden="true"></div>
   <canvas class="dust-layer" id="dustLayer" aria-hidden="true"></canvas>
 
   <header class="hero">
     <div class="hero-content">
       <h1>BREAKPOINT</h1>
       <p class="tagline">Interior Hard Reset</p>
+      <p class="hero-tech-line"><span id="typedLine"></span></p>
 
       <p class="hero-text">
-        Preparamos interiores para una nueva etapa:
-        menos desorden visual, mas orden tecnico y espacios listos para evolucionar.
+        Quitamos lo viejo.<br>
+        Dejamos todo listo para empezar de nuevo.
       </p>
 
       <a href="#servicios" class="btn-primary">Ver servicios</a>
@@ -51,18 +65,51 @@
     </p>
   </section>
 
+  <div class="section-cut" aria-hidden="true"></div>
+
+  <section class="dark">
+    <h2>Proceso</h2>
+
+    <ul class="process-list">
+      <li>
+        <span>01</span>
+        <strong>Evaluacion visual</strong>
+      </li>
+      <li>
+        <span>02</span>
+        <strong>Definicion del alcance</strong>
+      </li>
+      <li>
+        <span>03</span>
+        <strong>Proteccion del entorno</strong>
+      </li>
+      <li>
+        <span>04</span>
+        <strong>Ejecucion controlada</strong>
+      </li>
+      <li>
+        <span>05</span>
+        <strong>Entrega lista para siguiente etapa</strong>
+      </li>
+    </ul>
+  </section>
+
+  <div class="section-cut" aria-hidden="true"></div>
+
   <section>
     <h2>Para quien es</h2>
 
     <ul>
       <li>Remodelaciones de departamentos y viviendas</li>
-      <li>Cambios de cocinas, banos o espacios interiores</li>
+      <li>Cambios de cocinas o espacios interiores</li>
       <li>Clientes que buscan orden tecnico antes de instalar</li>
       <li>Disenadores de interiores que necesitan ejecucion limpia y precisa</li>
       <li>Proyectos que se preparan para venta o alquiler (puesta en valor del inmueble)</li>
       <li>Espacios que requieren integracion de tecnologia (seguridad, redes, automatizacion)</li>
     </ul>
   </section>
+
+  <div class="section-cut" aria-hidden="true"></div>
 
   <section class="dark">
     <h2>Por que nosotros</h2>
@@ -91,6 +138,22 @@
     </ul>
   </section>
 
+  <div class="section-cut" aria-hidden="true"></div>
+
+  <section>
+    <h2>Checklist de entrega</h2>
+
+    <ul class="checklist-list">
+      <li>Superficie liberada</li>
+      <li>Recorridos preparados</li>
+      <li>Zona despejada y ordenada</li>
+      <li>Puntos listos para especialistas</li>
+      <li>Ambiente preparado para su siguiente etapa</li>
+    </ul>
+  </section>
+
+  <div class="section-cut" aria-hidden="true"></div>
+
   <section class="cta">
     <h2>Listo para reiniciar tu espacio?</h2>
     <p class="section-intro">Envia fotos del ambiente y te orientamos segun el tipo de preparacion que necesitas.</p>
@@ -100,9 +163,20 @@
       rel="noopener"
       class="btn-primary"
     >
-      Contactanos
+      Consultar por WhatsApp
     </a>
   </section>
+
+  <a
+    href="https://wa.me/51936276938?text=Hola,%20quiero%20enviar%20fotos%20para%20evaluar%20mi%20espacio."
+    target="_blank"
+    rel="noopener"
+    class="whatsapp-float"
+    aria-label="Consultar por WhatsApp"
+  >
+    <span class="wa-short">WA</span>
+    <span class="wa-full">Consultar</span>
+  </a>
 
   <footer>
     <p>BREAKPOINT</p>
