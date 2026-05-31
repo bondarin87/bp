@@ -5,8 +5,13 @@ const pageLoader = document.getElementById("pageLoader");
 if (pageLoader) {
   const loaderStart = Date.now();
   const minLoaderTime = 1300;
+  const maxLoaderTime = 3200;
+  let loaderClosed = false;
 
-  window.addEventListener("load", () => {
+  function closeLoader() {
+    if (loaderClosed) return;
+    loaderClosed = true;
+
     const elapsed = Date.now() - loaderStart;
     const delay = Math.max(0, minLoaderTime - elapsed);
 
@@ -14,7 +19,13 @@ if (pageLoader) {
       pageLoader.classList.add("hidden");
       document.body.classList.add("loaded");
     }, delay);
+  }
+
+  window.addEventListener("load", closeLoader);
+  window.addEventListener("DOMContentLoaded", () => {
+    setTimeout(closeLoader, maxLoaderTime);
   });
+  setTimeout(closeLoader, maxLoaderTime);
 } else {
   document.body.classList.add("loaded");
 }
