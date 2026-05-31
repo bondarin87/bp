@@ -1,5 +1,92 @@
 console.log("BREAKPOINT listo.");
 
+const pageLoader = document.getElementById("pageLoader");
+
+if (pageLoader) {
+  const loaderStart = Date.now();
+  const minLoaderTime = 1300;
+
+  window.addEventListener("load", () => {
+    const elapsed = Date.now() - loaderStart;
+    const delay = Math.max(0, minLoaderTime - elapsed);
+
+    setTimeout(() => {
+      pageLoader.classList.add("hidden");
+      document.body.classList.add("loaded");
+    }, delay);
+  });
+} else {
+  document.body.classList.add("loaded");
+}
+
+const inspectionLight = document.getElementById("inspectionLight");
+
+if (inspectionLight && window.matchMedia("(pointer: fine)").matches) {
+  window.addEventListener("mousemove", (event) => {
+    document.body.classList.add("has-pointer");
+    inspectionLight.style.left = `${event.clientX}px`;
+    inspectionLight.style.top = `${event.clientY}px`;
+  });
+
+  window.addEventListener("mouseleave", () => {
+    document.body.classList.remove("has-pointer");
+  });
+}
+
+const typedLine = document.getElementById("typedLine");
+
+if (typedLine) {
+  const text = "Preparacion tecnica - Cableado oculto - Espacios listos";
+  let index = 0;
+
+  function typeNextLetter() {
+    typedLine.textContent = text.slice(0, index);
+    index += 1;
+
+    if (index <= text.length) {
+      setTimeout(typeNextLetter, 48);
+    }
+  }
+
+  setTimeout(typeNextLetter, 1450);
+}
+
+const scrollProgress = document.getElementById("scrollProgress");
+
+function updateScrollProgress() {
+  if (!scrollProgress) return;
+
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+  scrollProgress.style.width = `${Math.min(progress, 100)}%`;
+}
+
+window.addEventListener("scroll", updateScrollProgress, { passive: true });
+window.addEventListener("resize", updateScrollProgress);
+updateScrollProgress();
+
+const revealSections = document.querySelectorAll("section");
+
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.14 });
+
+  revealSections.forEach((section) => {
+    section.classList.add("reveal");
+    revealObserver.observe(section);
+  });
+} else {
+  revealSections.forEach((section) => {
+    section.classList.add("visible");
+  });
+}
+
 const dustCanvas = document.getElementById("dustLayer");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -26,17 +113,17 @@ if (dustCanvas && !reduceMotion) {
   function createParticle() {
     const depth = Math.random();
     const direction = Math.random() * Math.PI * 2;
-    const speed = 0.035 + depth * 0.09 + Math.random() * 0.035;
+    const speed = 0.014 + depth * 0.035 + Math.random() * 0.014;
 
     return {
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: Math.cos(direction) * speed + 0.035,
-      vy: Math.sin(direction) * speed - 0.018,
-      baseVx: Math.cos(direction) * speed + 0.035,
-      baseVy: Math.sin(direction) * speed - 0.018,
-      size: 0.45 + Math.random() * 1.25 + depth * 0.8,
-      alpha: 0.13 + Math.random() * 0.22 + depth * 0.1,
+      vx: Math.cos(direction) * speed + 0.012,
+      vy: Math.sin(direction) * speed - 0.006,
+      baseVx: Math.cos(direction) * speed + 0.012,
+      baseVy: Math.sin(direction) * speed - 0.006,
+      size: 0.18 + Math.random() * 0.55 + depth * 0.28,
+      alpha: 0.1 + Math.random() * 0.16 + depth * 0.08,
       phase: Math.random() * Math.PI * 2,
       wobble: 0.0007 + Math.random() * 0.0018,
       depth
@@ -45,7 +132,7 @@ if (dustCanvas && !reduceMotion) {
 
   function resetDust() {
     dust.length = 0;
-    const count = Math.min(120, Math.max(65, Math.floor((width * height) / 15000)));
+    const count = Math.min(60, Math.max(32, Math.floor((width * height) / 30000)));
 
     for (let i = 0; i < count; i++) {
       dust.push(createParticle());
@@ -71,13 +158,13 @@ if (dustCanvas && !reduceMotion) {
 
     for (const particle of dust) {
       const slowTime = time * particle.wobble;
-      const driftX = Math.sin(slowTime + particle.phase) * (0.12 + particle.depth * 0.22);
-      const driftY = Math.cos(slowTime * 0.7 + particle.phase) * (0.08 + particle.depth * 0.16);
+      const driftX = Math.sin(slowTime + particle.phase) * (0.04 + particle.depth * 0.08);
+      const driftY = Math.cos(slowTime * 0.7 + particle.phase) * (0.03 + particle.depth * 0.06);
 
       particle.vx += (particle.baseVx - particle.vx) * 0.006;
       particle.vy += (particle.baseVy - particle.vy) * 0.006;
-      particle.vx += (Math.random() - 0.5) * 0.0012;
-      particle.vy += (Math.random() - 0.5) * 0.001;
+      particle.vx += (Math.random() - 0.5) * 0.00045;
+      particle.vy += (Math.random() - 0.5) * 0.0004;
 
       particle.x += particle.vx + driftX;
       particle.y += particle.vy + driftY - airLift * particle.depth;
@@ -90,7 +177,7 @@ if (dustCanvas && !reduceMotion) {
       ctx.beginPath();
       ctx.fillStyle = `rgba(218, 190, 128, ${alpha})`;
       ctx.shadowColor = "rgba(218, 190, 128, 0.22)";
-      ctx.shadowBlur = 5 + particle.depth * 7;
+      ctx.shadowBlur = 3 + particle.depth * 4;
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       ctx.fill();
     }
