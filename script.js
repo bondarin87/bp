@@ -44,14 +44,14 @@ if (inspectionLight && window.matchMedia("(pointer: fine)").matches) {
   });
 }
 
-const typedLine = document.getElementById("typedLine");
+const typedHeroText = document.getElementById("typedHeroText");
 
-if (typedLine) {
-  const text = "Preparacion tecnica - Cableado oculto - Espacios listos";
+if (typedHeroText) {
+  const text = "Quitamos lo viejo.\nDejamos todo listo para empezar de nuevo.";
   let index = 0;
 
   function typeNextLetter() {
-    typedLine.textContent = text.slice(0, index);
+    typedHeroText.innerHTML = text.slice(0, index).replace(/\n/g, "<br>");
     index += 1;
 
     if (index <= text.length) {
@@ -63,6 +63,7 @@ if (typedLine) {
 }
 
 const scrollProgress = document.getElementById("scrollProgress");
+let scrollCutTimer;
 
 function updateScrollProgress() {
   if (!scrollProgress) return;
@@ -70,6 +71,12 @@ function updateScrollProgress() {
   const scrollable = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
   scrollProgress.style.width = `${Math.min(progress, 100)}%`;
+  scrollProgress.classList.add("cutting");
+
+  clearTimeout(scrollCutTimer);
+  scrollCutTimer = setTimeout(() => {
+    scrollProgress.classList.remove("cutting");
+  }, 180);
 }
 
 window.addEventListener("scroll", updateScrollProgress, { passive: true });
