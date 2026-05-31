@@ -4,7 +4,7 @@ const pageLoader = document.getElementById("pageLoader");
 
 if (pageLoader) {
   const loaderStart = Date.now();
-  const minLoaderTime = 1300;
+  const minLoaderTime = 1800;
   const maxLoaderTime = 3200;
   let loaderClosed = false;
 
@@ -63,25 +63,88 @@ if (typedHeroText) {
 }
 
 const scrollProgress = document.getElementById("scrollProgress");
-let scrollCutTimer;
+let scrollLaserTimer;
+let lastProgressScrollY = window.scrollY;
+let laserHeat = 0;
 
-function updateScrollProgress() {
+function updateScrollProgress(isScrolling = false) {
   if (!scrollProgress) return;
 
   const scrollable = document.documentElement.scrollHeight - window.innerHeight;
   const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
   scrollProgress.style.width = `${Math.min(progress, 100)}%`;
-  scrollProgress.classList.add("cutting");
 
-  clearTimeout(scrollCutTimer);
-  scrollCutTimer = setTimeout(() => {
-    scrollProgress.classList.remove("cutting");
-  }, 180);
+  if (!isScrolling) return;
+
+  const scrollDelta = Math.abs(window.scrollY - lastProgressScrollY);
+  lastProgressScrollY = window.scrollY;
+  const movementHeat = Math.min(scrollDelta / 120, 1);
+
+  laserHeat = Math.min(1, laserHeat * 0.58 + movementHeat * 0.72 + 0.16);
+  scrollProgress.style.setProperty("--laser-heat", laserHeat.toFixed(2));
+  scrollProgress.classList.add("laser-active");
+
+  clearTimeout(scrollLaserTimer);
+  scrollLaserTimer = setTimeout(() => {
+    laserHeat = 0;
+    scrollProgress.style.setProperty("--laser-heat", "0");
+    scrollProgress.classList.remove("laser-active");
+  }, 420);
 }
 
-window.addEventListener("scroll", updateScrollProgress, { passive: true });
-window.addEventListener("resize", updateScrollProgress);
+window.addEventListener("scroll", () => updateScrollProgress(true), { passive: true });
+window.addEventListener("resize", () => updateScrollProgress(false));
 updateScrollProgress();
+
+const whatsappFloat = document.querySelector(".whatsapp-float");
+const whatsappDockTarget = document.querySelector(".contact-action");
+let whatsappDockFrame;
+
+function updateWhatsAppDock() {
+  whatsappDockFrame = null;
+
+  if (!whatsappFloat || !whatsappDockTarget) return;
+
+  const targetRect = whatsappDockTarget.getBoundingClientRect();
+  const floatWidth = whatsappFloat.offsetWidth;
+  const floatHeight = whatsappFloat.offsetHeight;
+  const floatStyles = window.getComputedStyle(whatsappFloat);
+  const floatRight = Number.parseFloat(floatStyles.right) || 0;
+  const floatBottom = Number.parseFloat(floatStyles.bottom) || 0;
+  const restingLeft = window.innerWidth - floatRight - floatWidth;
+  const restingTop = window.innerHeight - floatBottom - floatHeight;
+  const dockStartsAt = window.innerHeight - 130;
+  const shouldDock = targetRect.top < dockStartsAt;
+
+  if (!shouldDock) {
+    whatsappFloat.style.setProperty("--dock-x", "0px");
+    whatsappFloat.style.setProperty("--dock-y", "0px");
+    whatsappFloat.style.setProperty("--dock-scale", "1");
+    whatsappFloat.classList.remove("docking");
+    return;
+  }
+
+  const targetCenterX = targetRect.left + targetRect.width / 2;
+  const targetCenterY = targetRect.top + targetRect.height / 2;
+  const floatCenterX = restingLeft + floatWidth / 2;
+  const floatCenterY = restingTop + floatHeight / 2;
+  const dockScale = Math.max(0.55, Math.min(1, targetRect.height / floatHeight));
+
+  whatsappFloat.style.setProperty("--dock-x", `${targetCenterX - floatCenterX}px`);
+  whatsappFloat.style.setProperty("--dock-y", `${targetCenterY - floatCenterY}px`);
+  whatsappFloat.style.setProperty("--dock-scale", dockScale.toFixed(2));
+  whatsappFloat.classList.add("docking");
+}
+
+function requestWhatsAppDockUpdate() {
+  if (whatsappDockFrame) return;
+  whatsappDockFrame = requestAnimationFrame(updateWhatsAppDock);
+}
+
+window.addEventListener("scroll", requestWhatsAppDockUpdate, { passive: true });
+window.addEventListener("resize", requestWhatsAppDockUpdate);
+window.addEventListener("load", requestWhatsAppDockUpdate);
+requestWhatsAppDockUpdate();
 
 const revealSections = document.querySelectorAll("section");
 
