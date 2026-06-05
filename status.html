@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Breakpoint Homes | Status Console</title>
+    <style>
+        :root {
+            --bg: #010409;
+            --card: #0d1117;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --blue: #2f81f7;
+            --green: #238636;
+            --orange: #d29922;
+            --red: #f85149;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .console {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+        }
+
+        .header {
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: var(--orange);
+            font-family: 'Courier New', monospace;
+            font-size: 1.4rem;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin: 5px 0 0 0;
+            text-transform: uppercase;
+        }
+
+        .label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Barras de Progreso */
+        .progress-container {
+            background-color: #010409;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            height: 35px;
+            width: 100%;
+            margin-bottom: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border: 1px solid currentColor;
+        }
+
+        .info-box {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: rgba(48, 54, 61, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--blue);
+            margin-bottom: 20px;
+        }
+
+        .done-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .done-list li {
+            padding: 5px 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .done-list li::before {
+            content: "✓";
+            color: var(--green);
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+            color: #8b949e;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .pulse { animation: active-pulse 2s infinite; }
+        @keyframes active-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="console">
+    <div class="header">
+        <h1 id="sysTitle">> BREAKPOINT_STATUS</h1>
+        <p>Acondicionamiento Técnico de Interiores</p>
+    </div>
+
+    <!-- MONITOR DE OBRA (Activo) -->
+    <div id="activeMode">
+        <div class="label">
+            <span>PROJECT_TIMELINE</span>
+            <span id="projPercent">0%</span>
+        </div>
+        <div class="progress-container">
+            <div id="projBar" class="progress-bar" style="background-color: var(--blue);"></div>
+        </div>
+
+        <div id="noiseBadge" class="badge">ANALYZING...</div>
+        <div class="label">
+            <span>ACOUSTIC_IMPACT_LOG</span>
+            <span id="noisePercent">0%</span>
+        </div>
+        <div class="progress-container">
+            <div id="noiseBar" class="progress-bar"></div>
+        </div>
+        
+        <div id="statusMsg" class="info-box">
+            Sincronizando con el servidor de obra...
+        </div>
+    </div>
+
+    <!-- MONITOR DE CIERRE (Finalizado) -->
+    <div id="finishMode" style="display:none;">
+        <div class="badge" style="color: var(--green);">SYSTEM_DEPLOYED: SUCCESS</div>
+        <div class="info-box" style="border-left-color: var(--green);">
+            <strong>¡Acondicionamiento Finalizado!</strong><br>
+            La intervención ha concluido cumpliendo con los estándares de limpieza e ingeniería programados.
+            <ul class="done-list">
+                <li>Superficies desbastadas al 100%.</li>
+                <li>Área libre de polvo y escombros.</li>
+                <li>Desmonte gestionado en botadero oficial.</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <strong>RESPONSABLE:</strong> Sergei Bondar | RUC: 00000000000<br>
+        <strong>CONTACTO:</strong> breakpoint.homes<br>
+        <span style="font-family: monospace; font-size: 0.65rem;">V.1.5-STABLE | LIMA_PERU</span>
+    </footer>
+</div>
+
+<script>
+    // ===================================================
+    // CONFIGURACIÓN UNIVERSAL (Ajusta aquí cada obra)
+    // ===================================================
+    const CONFIG = {
+        inicio: new Date("2026-06-05T08:00:00"), 
+        fin: new Date("2026-06-08T17:00:00"),
+        ruc: "20612345678", // Pon aquí tu RUC real
+        nombre: "Sergei Bondar"
+    };
+
+    function updateConsole() {
+        const ahora = new Date();
+        
+        // 1. CHEQUEO DE FINALIZACIÓN
+        if (ahora > CONFIG.fin) {
+            document.getElementById('activeMode').style.display = 'none';
+            document.getElementById('finishMode').style.display = 'block';
+            document.getElementById('sysTitle').innerText = "> PROJECT_COMPLETED";
+            document.getElementById('sysTitle').style.color = "var(--green)";
+            return;
+        }
+
+        // 2. PROGRESO GLOBAL
+        const total = CONFIG.fin - CONFIG.inicio;
+        const actual = ahora - CONFIG.inicio;
+        let pTotal = Math.floor((actual / total) * 100);
+        pTotal = Math.max(0, Math.min(100, pTotal));
+        
+        document.getElementById('projBar').style.width = pTotal + "%";
+        document.getElementById('projBar').innerText = pTotal > 15 ? "EXECUTING..." : "";
+        document.getElementById('projPercent').innerText = pTotal + "%";
+
+        // 3. LÓGICA DE RUIDOS (L-V 8-17, S 9-13)
+        const dia = ahora.getDay();
+        const hora = ahora.getHours() + ahora.getMinutes() / 60;
+        
+        let inicioR = 8;
+        let finR = 17;
+        let esHorario = false;
+
+        if (dia >= 1 && dia <= 5) { // L-V
+            if (hora >= 8 && hora < 17) esHorario = true;
+        } else if (dia === 6) { // Sabado
+            inicioR = 9;
+            finR = 13;
+            if (hora >= 9 && hora < 13) esHorario = true;
+        }
+
+        const nBar = document.getElementById('noiseBar');
+        const nBadge = document.getElementById('noiseBadge');
+        const nMsg = document.getElementById('statusMsg');
+        const nPerc = document.getElementById('noisePercent');
+
+        if (dia === 0) { // Domingo
+            setSilent(nBar, nBadge, nMsg, nPerc, "MODO_SILENCIO: Domingo - Sin ruidos.");
+        } else if (esHorario) {
+            let pRuido = ((hora - inicioR) / (finR - inicioR)) * 100;
+            nBar.style.width = pRuido + "%";
+            nBar.style.backgroundColor = "var(--red)";
+            nBar.innerText = "ACTIVE";
+            nBar.classList.add('pulse');
+            nPerc.innerText = Math.floor(pRuido) + "%";
+            
+            nBadge.innerText = "STATUS: HIGH_IMPACT_RUIDO";
+            nBadge.style.color = "var(--red)";
+            nMsg.innerHTML = `<strong>⚠️ Fase ruidosa en curso.</strong><br>Respetamos la convivencia. Los ruidos cesarán hoy a las ${finR}:00 PM.`;
+        } else {
+            let proximo = (dia === 6 || (dia === 5 && hora >= 17)) ? "Lunes 08:00" : "Mañana 08:00";
+            if (dia < 5 && hora >= 17) proximo = "Mañana 08:00";
+            if (dia === 5 && hora >= 17) proximo = "Sábado 09:00";
+            
+            setSilent(nBar, nBadge, nMsg, nPerc, `STANDBY: Próxima actividad ruidosa: ${proximo}.`);
+        }
+    }
+
+    function setSilent(bar, badge, msg, perc, text) {
+        bar.style.width = "100%";
+        bar.style.backgroundColor = "var(--green)";
+        bar.innerText = "QUIET";
+        bar.classList.remove('pulse');
+        perc.innerText = "0%";
+        badge.innerText = "STATUS: SILENT_MODE";
+        badge.style.color = "var(--green)";
+        msg.innerHTML = `<strong>✅ Zona en silencio.</strong><br>${text}`;
+    }
+
+    setInterval(updateConsole, 10000);
+    updateConsole();
+</script>
+</body>
+</html>
